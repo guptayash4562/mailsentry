@@ -1,0 +1,32 @@
+From: "PayPal Security Team" <security-alerts@paypa1-update.com>
+To: target.executive@globalfinance.org
+Subject: URGENT: Account Suspension Notice - Immediate Action Required
+Date: Fri, 04 Sep 2026 12:00:00 +0000
+Message-ID: <threat-20260904-98412@paypa1-update.com>
+Return-Path: <bounce-daemon@external-relay-network.ru>
+Reply-To: credential-collector@paypa1-update.com
+Authentication-Results: mx.globalfinance.org; spf=fail (sender IP 192.168.1.99 is not authorized) smtp.mailfrom=external-relay-network.ru; dkim=fail header.d=paypa1-update.com; dmarc=fail (p=REJECT)
+Received-SPF: fail (mx.globalfinance.org: domain of external-relay-network.ru does not designate 192.168.1.99 as permitted sender)
+Received: from mx.globalfinance.org (mx.globalfinance.org [104.244.42.1])
+    by inbound-gateway.globalfinance.org with ESMTP id ABC123XYZ;
+    Fri, 04 Sep 2026 12:00:08 +0000
+Received: from relay-node03.external-relay-network.ru (relay-node03.external-relay-network.ru [185.220.101.5])
+    by mx.globalfinance.org with ESMTP id RELAY456;
+    Fri, 04 Sep 2026 12:00:05 +0000
+Received: from host-origin.paypa1-update.com (host-origin.paypa1-update.com [192.168.1.99])
+    by relay-node03.external-relay-network.ru with ESMTP id ORIG789;
+    Fri, 04 Sep 2026 12:00:01 +0000
+Content-Type: text/plain; charset="utf-8"
+
+Dear Valued Executive,
+
+We have detected multiple unauthorized login attempts on your corporate account originating from an unknown device in Moscow, Russia.
+
+Your account access will be suspended within 24 hours unless you verify your credentials immediately through our secure single sign-on gateway:
+
+http://secure-login.paypa1-update.com/login?token=9f823a8b4c
+
+Failure to verify will result in immediate termination of transaction privileges.
+
+Sincerely,
+PayPal Corporate Fraud Prevention Operations

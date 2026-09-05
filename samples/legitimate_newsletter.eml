@@ -1,0 +1,31 @@
+From: "Google Cloud Platform" <cloud-noreply@google.com>
+To: engineering-team@enterprise.com
+Subject: Google Cloud Weekly Security Bulletin: Identity & Access Management Best Practices
+Date: Fri, 04 Sep 2026 08:00:00 +0000
+Message-ID: <gcp-bulletin-2026-901@google.com>
+Return-Path: <cloud-noreply@google.com>
+Authentication-Results: mx.enterprise.com; spf=pass (google.com: domain of cloud-noreply@google.com designates 209.85.220.41 as permitted sender); dkim=pass header.i=@google.com header.s=20230601; dmarc=pass (p=REJECT sp=REJECT dis=none)
+Received-SPF: pass (mx.enterprise.com: domain of cloud-noreply@google.com designates 209.85.220.41 as permitted sender)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20230601; bh=Abc123Base64Hash==; h=From:To:Subject:Date:Message-ID; b=SignatureValidBytes==
+Received: from mx.enterprise.com (mx.enterprise.com [104.244.42.1])
+    by corporate-inbox.enterprise.com with ESMTP id GCP_OK_01;
+    Fri, 04 Sep 2026 08:00:05 +0000
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com [209.85.220.41])
+    by mx.enterprise.com with ESMTP id GCP_OK_02;
+    Fri, 04 Sep 2026 08:00:02 +0000
+Content-Type: text/plain; charset="utf-8"
+
+Hello Google Cloud Administrator,
+
+Here is your weekly digest of security and compliance updates for your cloud organization.
+
+Key Highlights this week:
+- Enhanced Workload Identity Federation controls for multi-cloud deployments.
+- New recommendations for least-privilege IAM service account key rotation.
+- Updated documentation on zero-trust endpoint access.
+
+You can review your Cloud Console recommendations at:
+https://console.cloud.google.com/security/compliance
+
+Thank you for choosing Google Cloud.
+The Google Cloud Security Team
