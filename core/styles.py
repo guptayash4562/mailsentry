@@ -1,315 +1,165 @@
-"""
-MailSentry Enterprise Cyber SOC Design System
-Styles and UI Components inspired by Google Chronicle, CrowdStrike Falcon, and Cloudflare Radar.
-"""
+import streamlit as st
 
-def get_custom_css():
-    return """
+def inject_global_css():
+    st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
-
-    :root {
-        --bg-dark: #0a0e17;
-        --card-bg: rgba(17, 24, 39, 0.75);
-        --card-border: rgba(30, 41, 59, 0.85);
-        --accent-cyan: #00e5ff;
-        --accent-glow: rgba(0, 229, 255, 0.25);
-        --danger-red: #ef4444;
-        --danger-glow: rgba(239, 68, 68, 0.25);
-        --warning-amber: #f59e0b;
-        --safe-emerald: #10b981;
-        --text-primary: #f8fafc;
-        --text-muted: #94a3b8;
-    }
-
-    /* Global Body Styles */
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        color: var(--text-primary);
-    }
-
-    h1, h2, h3, h4 {
-        font-family: 'Outfit', sans-serif !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em;
-    }
-
-    code, pre, .stCodeBlock {
-        font-family: 'JetBrains Mono', monospace !important;
-    }
-
-    /* Top Enterprise Header Bar */
-    .soc-topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
-        border: 1px solid rgba(0, 229, 255, 0.2);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(12px);
-        padding: 12px 24px;
-        border-radius: 12px;
-        margin-bottom: 24px;
-    }
-
-    .soc-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .soc-brand-icon {
-        font-size: 28px;
-        filter: drop-shadow(0 0 12px var(--accent-cyan));
-    }
-
-    .soc-brand-title {
-        font-size: 20px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #ffffff 0%, #00e5ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-    }
-
-    .soc-telemetry {
-        display: flex;
-        gap: 20px;
-        font-size: 12px;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .telemetry-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(0, 0, 0, 0.4);
-        padding: 5px 12px;
+    /* Forensic Panel Styling */
+    .forensic-card {
+        background-color: #0E1117;
+        border: 1px solid #1E293B;
         border-radius: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-family: 'Inter', sans-serif;
     }
-
-    .pulse-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
+    .forensic-card-header {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #64748B;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    .forensic-value {
+        font-family: 'Fira Code', monospace;
+        color: #E0E6ED;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    .status-pass { color: #22C55E; font-weight: bold; }
+    .status-fail { color: #F43F5E; font-weight: bold; }
+    .status-warn { color: #F59E0B; font-weight: bold; }
+    
+    /* Contact & Global Footer */
+    .contact-banner {
+        background-color: #0E1117;
+        border-top: 1px solid #1E293B;
+        border-bottom: 1px solid #1E293B;
+        padding: 4rem 2rem;
+        text-align: center;
+        margin-top: 4rem;
+    }
+    .contact-email-btn {
         display: inline-block;
-        box-shadow: 0 0 8px currentColor;
-        animation: pulseAnimation 2s infinite ease-in-out;
+        background-color: #2563EB;
+        color: #FFFFFF !important;
+        padding: 0.75rem 2rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        transition: background-color 0.2s;
     }
-
-    .pulse-dot.cyan { color: #00e5ff; background-color: #00e5ff; }
-    .pulse-dot.green { color: #10b981; background-color: #10b981; }
-    .pulse-dot.red { color: #ef4444; background-color: #ef4444; }
-    .pulse-dot.amber { color: #f59e0b; background-color: #f59e0b; }
-
-    @keyframes pulseAnimation {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.85); }
+    .contact-email-btn:hover { background-color: #1D4ED8; }
+    
+    .global-footer {
+        background-color: #070B14;
+        padding: 4rem 2rem 2rem 2rem;
+        color: #64748B;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
     }
-
-    /* Enterprise Glass Cards */
-    .soc-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 14px;
-        padding: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(16px);
-        margin-bottom: 20px;
-        transition: all 0.25s ease;
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
     }
-
-    .soc-card:hover {
-        border-color: rgba(0, 229, 255, 0.4);
-        box-shadow: 0 12px 36px rgba(0, 229, 255, 0.08);
+    .footer-col h4 {
+        color: #F5F7FA;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
     }
-
-    .soc-card-header {
+    .footer-col a {
+        display: block;
+        color: #94A3B8;
+        text-decoration: none;
+        margin-bottom: 0.75rem;
+        transition: color 0.2s;
+    }
+    .footer-col a:hover { color: #F5F7FA; }
+    .footer-bottom {
+        max-width: 1200px;
+        margin: 3rem auto 0 auto;
+        padding-top: 2rem;
+        border-top: 1px solid #1E293B;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        padding-bottom: 12px;
-        margin-bottom: 16px;
+    }
+    /* 1. Make Streamlit's native header invisible and let clicks pass through to your links */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        z-index: 999999 !important;
+        pointer-events: none !important; 
     }
 
-    .soc-card-title {
-        font-size: 15px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    /* 2. Re-enable clicks ONLY for the native sidebar toggle and deploy menu */
+    header[data-testid="stHeader"] * {
+        pointer-events: auto !important;
     }
 
-    /* Severity Badges */
-    .badge {
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+    /* 3. Push the main app content down so the fixed header doesn't cover the title */
+    .block-container {
+        padding-top: 80px !important;
     }
 
-    .badge-critical {
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-        color: #f87171;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    /* 4. Enable smooth scrolling across the Streamlit container */
+    html, body, [data-testid="stAppViewContainer"] {
+        scroll-behavior: smooth;
     }
 
-    .badge-suspicious {
-        background: rgba(245, 158, 11, 0.15);
-        border: 1px solid rgba(245, 158, 11, 0.5);
-        color: #fbbf24;
-        box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    /* 5. Prevent fixed header from overlapping anchor targets */
+    .anchor-offset {
+        scroll-margin-top: 90px;
     }
 
-    .badge-benign {
-        background: rgba(16, 185, 129, 0.15);
-        border: 1px solid rgba(16, 185, 129, 0.5);
-        color: #34d399;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
-    }
-
-    .badge-info {
-        background: rgba(0, 229, 255, 0.15);
-        border: 1px solid rgba(0, 229, 255, 0.5);
-        color: #38bdf8;
-    }
-
-    /* SOC Metric Counter Cards */
-    .metric-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .metric-box {
-        background: linear-gradient(145deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.4) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 18px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .metric-box::after {
-        content: '';
-        position: absolute;
+    /* 6. The Custom Fixed Header */
+    .fixed-header {
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-    }
-
-    .metric-label {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        margin-bottom: 6px;
-    }
-
-    .metric-value {
-        font-size: 28px;
-        font-weight: 800;
-        font-family: 'Outfit', sans-serif;
-        color: #ffffff;
-    }
-
-    .metric-sub {
-        font-size: 11px;
-        color: var(--text-muted);
-        margin-top: 4px;
-    }
-
-    /* Timeline & Relay Nodes */
-    .relay-node {
-        background: rgba(15, 23, 42, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
+        height: 60px;
+        background-color: #070B14;
+        border-bottom: 1px solid #1E293B;
+        z-index: 999998; /* Just below the native header so toggle button stays on top */
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: transform 0.15s ease;
+        /* 4rem left dodges the sidebar toggle, 8rem right dodges deploy menu */
+        padding: 0 8rem 0 4rem; 
     }
 
-    .relay-node:hover {
-        transform: translateX(4px);
-        border-color: var(--accent-cyan);
+    .header-brand {
+        font-family: 'Inter', sans-serif, monospace;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #F5F7FA;
+        letter-spacing: 1px;
     }
 
-    /* Streamlit element overrides */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgba(15, 23, 42, 0.6);
-        padding: 6px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+    .header-brand span {
+        color: #FF4B4B;
     }
 
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 8px 18px;
+    .header-links {
+        display: flex;
+        gap: 2rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
         font-weight: 600;
-        font-size: 13px;
-        color: var(--text-muted);
-        border: none;
     }
 
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
-        color: #00e5ff !important;
-        border: 1px solid rgba(0, 229, 255, 0.4) !important;
+    .header-links a {
+        color: #A0AAB2;
+        text-decoration: none;
+        transition: color 0.2s;
     }
 
-    /* Button styling */
-    .stButton>button {
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 13px;
-        letter-spacing: 0.03em;
-        transition: all 0.2s ease;
-    }
-
-    .stButton>button[kind="primary"] {
-        background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-        border: none;
-        box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
-    }
-
-    .stButton>button[kind="primary"]:hover {
-        box-shadow: 0 6px 20px rgba(0, 198, 255, 0.6);
-        transform: translateY(-1px);
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #0a0e17;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #1e293b;
-        border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #00e5ff;
+    .header-links a:hover {
+        color: #F5F7FA;
     }
     </style>
-    """
+    """, unsafe_allow_html=True)

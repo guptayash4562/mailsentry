@@ -1,175 +1,153 @@
-# pyrefly: ignore [missing-import]
 import plotly.graph_objects as go
+import re
 
-def create_threat_gauge(score, classification):
-    """Generates an enterprise-grade dark mode threat speedometer gauge."""
-    if score >= 75:
-        bar_color = "#ef4444"
-    elif score >= 50:
-        bar_color = "#f59e0b"
-    elif score >= 25:
-        bar_color = "#eab308"
-    else:
-        bar_color = "#10b981"
-
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=score,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': f"<b>{classification}</b>", 'font': {'size': 14, 'color': '#94a3b8', 'family': 'Outfit'}},
-        number={'suffix': "/100", 'font': {'size': 44, 'color': '#ffffff', 'family': 'Outfit'}},
-        gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#334155", 'tickfont': {'color': '#64748b'}},
-            'bar': {'color': bar_color, 'thickness': 0.25},
-            'bgcolor': "rgba(15, 23, 42, 0.6)",
-            'borderwidth': 1,
-            'bordercolor': "rgba(255, 255, 255, 0.1)",
-            'steps': [
-                {'range': [0, 25], 'color': 'rgba(16, 185, 129, 0.15)'},
-                {'range': [25, 50], 'color': 'rgba(234, 179, 8, 0.15)'},
-                {'range': [50, 75], 'color': 'rgba(245, 158, 11, 0.2)'},
-                {'range': [75, 100], 'color': 'rgba(239, 68, 68, 0.25)'}
-            ],
-            'threshold': {
-                'line': {'color': bar_color, 'width': 4},
-                'thickness': 0.8,
-                'value': score
-            }
-        }
-    ))
-
-    fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=220,
-        font={'family': 'Inter'}
-    )
-    return fig
-
-
-def create_vector_radar(vectors):
-    """Generates a multi-dimensional attack vector polar radar chart."""
-    categories = list(vectors.keys())
-    values = list(vectors.values())
+def parse_risk_factors(reasons):
+    parsed = []
     
-    # Close polygon
-    categories_closed = categories + [categories[0]]
-    values_closed = values + [values[0]]
+    for r in reasons:
+        factor_name = "Risk Signal"
+        contribution = 0
+        severity = "WARNING"
+        reason_text = ""
+        
+        if isinstance(r, dict):
+            raw_text = r.get('text', '')
+            severity = r.get('level', 'WARNING').upper()
+            reason_text = raw_text
+            
+            match = re.search(r'\(([+-]\d+)\)', raw_text)
+            if match:
+                contribution = int(match.group(1))
+                factor_name = re.sub(r'\s*\([+-]\d+\)\s*', '', raw_text).strip()
+            else:
+                factor_name = raw_text
+                
+        elif isinstance(r, str):
+            reason_text = r
+            match = re.search(r'\(([+-]\d+)\)', r)
+            if match:
+                contribution = int(match.group(1))
+                factor_name = re.sub(r'\([+-]\d+\)', '', r).replace('CRITICAL:', '').replace('WARNING:', '').strip()
+            else:
+                factor_name = r
+                
+            if "CRITICAL" in r.upper(): severity = "CRITICAL"
+            elif "SAFE" in r.upper() or "-" in str(contribution): severity = "MITIGATION"
+            
+        # Create ultra-short labels for the x-axis
+        short_name = factor_name.split('-')[0].strip()
+        if len(short_name) > 18:
+            short_name = short_name[:15] + "..."
+            
+        parsed.append({
+            "short_name": short_name,
+            "full_name": factor_name,
+            "value": contribution,
+            "severity": severity,
+            "reason": reason_text
+        })
+        
+    return parsed
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatterpolar(
-        r=values_closed,
-        theta=categories_closed,
-        fill='toself',
-        fillcolor='rgba(0, 229, 255, 0.2)',
-        line=dict(color='#00e5ff', width=2),
-        marker=dict(size=6, color='#00e5ff'),
-        name='Threat Exposure'
-    ))
-
-    fig.update_layout(
-        polar=dict(
-            bgcolor='rgba(15, 23, 42, 0.5)',
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100],
-                tickfont=dict(size=9, color='#64748b'),
-                gridcolor='rgba(255, 255, 255, 0.08)',
-                linecolor='rgba(255, 255, 255, 0.1)'
-            ),
-            angularaxis=dict(
-                tickfont=dict(size=11, color='#94a3b8', family='Outfit'),
-                gridcolor='rgba(255, 255, 255, 0.08)',
-                linecolor='rgba(255, 255, 255, 0.1)'
-            )
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=40, r=40, t=30, b=30),
-        height=240,
-        showlegend=False
-    )
-    return fig
-
-
-def create_hop_geo_map(hop_geos):
-    """Generates an interactive global transit map for email relay hops."""
-    fig = go.Figure()
-
-    if not hop_geos:
-        # Default empty world view
-        fig.update_layout(
-            geo=dict(
-                bgcolor='rgba(10, 14, 23, 1)',
-                showland=True, landcolor='rgba(15, 23, 42, 1)',
-                showocean=True, oceancolor='rgba(8, 11, 19, 1)',
-                showcountries=True, countrycolor='rgba(255, 255, 255, 0.1)',
-                coastlinecolor='rgba(0, 229, 255, 0.2)'
-            ),
-            paper_bgcolor='rgba(0,0,0,0)',
-            height=360,
-            margin=dict(l=0, r=0, t=10, b=10)
-        )
-        return fig
-
-    lats = [g['lat'] for g in hop_geos]
-    lons = [g['lon'] for g in hop_geos]
-    labels = [f"Hop {i+1}: {g['ip']}<br>{g['city']}, {g['country']}<br>{g['asn']}" for i, g in enumerate(hop_geos)]
+def render_risk_decomposition(risk_data):
+    final_score = int(risk_data.get('score', 0))
+    reasons = risk_data.get('reasons', [])
+    factors = parse_risk_factors(reasons)
+    
+    x_labels = []
+    y_values = []
+    bases = []
     colors = []
+    hover_texts = []
+    text_vals = []
     
-    for g in hop_geos:
-        t = g.get('threat', '')
-        if 'Hostile' in t or 'Tor' in t:
-            colors.append('#ef4444')
-        elif 'Suspicious' in t or 'Anonymized' in t:
-            colors.append('#f59e0b')
-        else:
-            colors.append('#00e5ff')
+    current_base = 0
+    
+    # 1. Plot Individual Signals
+    for f in factors:
+        x_labels.append(f['short_name'])
+        val = f['value']
+        y_values.append(val)
+        bases.append(current_base)
+        text_vals.append(f"+{val}" if val > 0 else str(val))
+        
+        if f['severity'] == "CRITICAL": colors.append("#F43F5E")       # Red
+        elif f['severity'] == "MITIGATION": colors.append("#22C55E")   # Green
+        else: colors.append("#F59E0B")                                 # Amber
+            
+        hover_texts.append(f"<b>{f['full_name']}</b><br>Severity: {f['severity']}<br>Contribution: {'+' if val>0 else ''}{val}<br><i>{f['reason']}</i>")
+        current_base += val
 
-    # Draw flight paths between hops
-    if len(hop_geos) > 1:
-        fig.add_trace(go.Scattergeo(
-            lon=lons,
-            lat=lats,
-            mode='lines',
-            line=dict(width=2, color='rgba(0, 229, 255, 0.6)', dash='dash'),
-            hoverinfo='none'
-        ))
+    raw_total = current_base
+    
+    # 2. Raw Signal Total Anchor
+    x_labels.append("Raw Total")
+    y_values.append(raw_total)
+    bases.append(0)
+    colors.append("#2563EB") # Blue 
+    text_vals.append(str(raw_total))
+    hover_texts.append(f"<b>Raw Signal Total</b><br>Cumulative sum before normalization: {raw_total}")
 
-    # Draw nodes
-    fig.add_trace(go.Scattergeo(
-        lon=lons,
-        lat=lats,
-        mode='markers+text',
-        marker=dict(
-            size=14,
-            color=colors,
-            line=dict(width=2, color='#ffffff'),
-            opacity=0.9
-        ),
-        text=[f"Hop {i+1}" for i in range(len(hop_geos))],
-        textposition="top right",
-        textfont=dict(family="JetBrains Mono", size=10, color="#ffffff"),
-        hoverinfo='text',
-        hovertext=labels
+    # 3. Engine Normalization / Transformation
+    normalization = final_score - raw_total
+    if normalization != 0:
+        x_labels.append("Normalization")
+        y_values.append(normalization)
+        bases.append(raw_total)
+        colors.append("#94A3B8") # Neutral Gray
+        text_vals.append(str(normalization))
+        hover_texts.append(f"<b>Score Normalization</b><br>Mathematical constraint applied: {normalization}")
+
+    # 4. Final Score Anchor
+    x_labels.append("Final Score")
+    y_values.append(final_score)
+    bases.append(0)
+    colors.append("#2563EB") # Blue
+    text_vals.append(str(final_score))
+    hover_texts.append(f"<b>Final Risk Score</b><br>Engine Output: {final_score}")
+
+    # 5. Render as a Custom Bar Chart (Bypasses Plotly Waterfall Limitations)
+    fig = go.Figure(go.Bar(
+        x=x_labels,
+        y=y_values,
+        base=bases,
+        marker_color=colors,
+        text=text_vals,
+        textposition="outside",
+        hoverinfo="text",
+        hovertext=hover_texts,
+        width=0.7
     ))
 
+    # Analytical Light Theme
     fig.update_layout(
-        geo=dict(
-            bgcolor='rgba(10, 14, 23, 1)',
-            showland=True, landcolor='rgba(15, 23, 42, 1)',
-            showocean=True, oceancolor='rgba(8, 11, 19, 1)',
-            showcountries=True, countrycolor='rgba(255, 255, 255, 0.15)',
-            coastlinecolor='rgba(0, 229, 255, 0.25)',
-            showsubunits=True,
-            projection_type='equirectangular'
-        ),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        height=360,
-        margin=dict(l=0, r=0, t=10, b=10),
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
+        font=dict(family="Inter, sans-serif", color="#0F172A", size=11),
+        margin=dict(l=20, r=20, t=30, b=40),
+        xaxis=dict(showgrid=False, tickangle=0),
+        yaxis=dict(showgrid=True, gridcolor="#E2E8F0", zeroline=True, zerolinecolor="#94A3B8", title="Points"),
+        height=380,
         showlegend=False
     )
-    return fig
+    
+    # Build Summary Metrics
+    critical_signals = len([f for f in factors if f['severity'] == "CRITICAL"])
+    warning_signals = len([f for f in factors if f['severity'] == "WARNING"])
+    
+    top_driver = "None"
+    if len(factors) > 0:
+        worst_factor = max(factors, key=lambda x: x['value'])
+        if worst_factor['value'] > 0:
+            top_driver = worst_factor['short_name']
+            
+    summary = {
+        "final_score": final_score,
+        "raw_total": raw_total,
+        "top_driver": top_driver,
+        "critical_signals": critical_signals,
+        "warning_signals": warning_signals,
+        "factors": factors
+    }
+    
+    return fig, summary
